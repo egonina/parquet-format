@@ -60,6 +60,10 @@ enum ConvertedType {
 
   /** an enum is converted into a binary field */
   ENUM = 4;
+
+  /** A decimal value stored using fixed length byte array. The precision and scale
+   * must be defined in the schema which can be used to interpret the decimal. */
+  DECIMAL=5;
 }
 
 /**
@@ -125,6 +129,16 @@ struct SchemaElement {
    * Used to record the original type to help with cross conversion.
    */
   6: optional ConvertedType converted_type;
+
+  /** Used when this column contains decimal data. The precision specifies the
+   * number of digits in the decimal and the scale stores the location of the
+   * decimal point. For example 1.23 would have precision 3 (3 total digits) and
+   * scale 2 (the decimal point is 2 digits over). The actual value is stored as
+   * a multi-byte integer using FIXED_LEN_BYTE_ARRAY. The decimal value is
+   * as value * 10^-scale.
+   */
+  7: optional i32 scale
+  8: optional i32 precision
 }
 
 /**
@@ -145,9 +159,9 @@ enum Encoding {
   PLAIN = 0;
 
   /** Group VarInt encoding for INT32/INT64.
+   * This encoding is deprecated. It was never used
    */
-//  GROUP_VAR_INT = 1;
-// This encoding is deprecated. It was never used
+  //  GROUP_VAR_INT = 1;
 
   /**
    * Deprecated: Dictionary encoding. The values in the dictionary are encoded in the
